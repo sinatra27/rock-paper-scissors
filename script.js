@@ -1,64 +1,71 @@
-// Function that accepts an array and returns a random option from the array
-function getComputerChoice (arr) {
-    return arr[Math.floor(Math.random() * arr.length)];
+// Function to randomly select an option from array to use as Computer's selection
+function getComputerChoice() {
+    const options = ['rock', 'paper', 'scissors'];
+    return options[Math.floor(Math.random() * options.length)];
 }
 
 // Function that accepts two parameters, selections for the player and computer
-function playRound (playerSelection, computerSelection) {
+function playRound(playerSelection, computerSelection) {
     // Conditionals for various selections, compare with computer's selection, then return result of game
     // Increment number of wins by player and computer
-    if (playerSelection != 'rock' && playerSelection != 'paper' && playerSelection != 'scissors') {
-        return 'You did not enter a valid selection';
-    }
-    else if(playerSelection == 'rock' && computerSelection == 'paper') {
-        cpu++;
-        return 'You Lose! Paper beats Rock';
-    }
-    else if (playerSelection == 'rock' && computerSelection == 'scissors') {
+    if (playerSelection == computerSelection) return `Tie!! You both selected ${playerSelection}`;
+    else if ((playerSelection == 'rock' && computerSelection == 'scissors') || 
+    (playerSelection == 'paper' && computerSelection == 'rock') || 
+    (playerSelection == 'scissors' && computerSelection == 'paper')) {
         player++;
-        return 'You Win! Rock beats Scissors';
+        return `You win! ${playerSelection} beats ${computerSelection}`;
     }
-    else if  (playerSelection == 'paper' && computerSelection == 'rock') {
-        player++;
-        return 'You Win! Paper beats Rock';
-    }
-    else if (playerSelection == 'paper' && computerSelection == 'scissors') {
+    else {
         cpu++;
-        return 'You Lose! Scissors beats Paper';
+        return `You lose! ${computerSelection} beats ${playerSelection}`;
     }
-    else if (playerSelection == 'scissors' && computerSelection == 'rock') {
-        cpu++;
-        return 'You Lose! Rock beats Scissors';
-    }
-    else if (playerSelection == 'scissors' && computerSelection == 'paper') {
-        player++;
-        return 'You Win! Scissors beats Paper';
-    }
-    else return 'Tie!! Same selection';
 }
 
 // Function that accepts a number and loops it
-function game(rounds) {
-    // Use For loop to iterate the number of rounds to play
-    for (let i = 1; i <= rounds; i++) {
-        // Prompt player to type in their selection; make user input case-insensitive by converting to all lower case
-        const playerSelection = prompt('Player 1, please select Rock, Paper, or Scissors...').toLowerCase();
-        const computerSelection = getComputerChoice(options);
-        console.log(playRound(playerSelection, computerSelection));
-        // Print the score after every round
-        console.log(`Round ${i}: Player Score = ${player} / Computer Score = ${cpu}`);
+function playGame(playerSelection) {
+    // Use to determine if game already over
+    if (round == 999) {
+        results.textContent = '';
+        score.textContent = '';
+        final.textContent = 'Game over! Please reload page to play again!!';
+        return;
     }
-    // Use conditional If to print the final results of the game
-    if (player > cpu) console.log('Final Results: You have won the game!!');
-    else if (cpu > player) console.log('Final Results: You have lost the game :(');
-    else console.log('Final Results: Tie game...');
+    const computerSelection = getComputerChoice();
+    results.textContent = playRound(playerSelection, computerSelection);
+
+    // Print the score after every round
+    score.textContent = `Round ${round}: Player Score = ${player} / Computer Score = ${cpu}`;
+    round++;
+    // Use conditional If to continue playing game until one player reaches five points
+    if (player < 5 && cpu < 5) return;
+    else {
+        round = 999;                        // Set for end of game
+        // Use conditional If to print the final results of the game
+        if (player > cpu) final.textContent = 'Game over! You have won the game!!';
+        else final.textContent = 'Game over! You have lost the game :(';
+    }
 }
 
-// Initialize variables to track number of wins by player and computer
+// Initialize variables to track the rounds and number of wins by player and computer
+let round = 1;
 let player = 0; 
 let cpu = 0;
 
-// Create an array that includes three options for the computer selection
-const options = ['rock', 'paper', 'scissors'];
+// Initialize variables to append text results
+const container = document.querySelector('#container');
 
-game(5);
+const results = document.createElement('div');
+container.appendChild(results);
+results.textContent = 'First player to score five points, wins!'
+
+const score = document.createElement('div');
+container.appendChild(score);
+
+const final = document.createElement('div');
+container.appendChild(final);
+
+// Add event listener on click for each of the three player options
+const buttons = document.querySelectorAll('button');
+for (let btn of buttons) {
+    btn.addEventListener('click', () => playGame(btn.value));
+}
